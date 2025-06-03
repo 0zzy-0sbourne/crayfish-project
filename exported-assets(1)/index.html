@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rusty Crayfish in Chicago Waterways - Interactive Story Map</title>
+    <meta name="description" content="An interactive story map tracking 50 years of rusty crayfish invasion in Chicago waterways">
+    <link rel="stylesheet" href="style.css">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Skip to content link for accessibility -->
+        <a href="#main-content" class="sr-only btn btn--primary">Skip to main content</a>
+        
+        <!-- Loading indicator -->
+        <div id="loading-indicator" class="loading-overlay" aria-hidden="true">
+            <div class="loading-spinner"></div>
+            <p>Loading story map data...</p>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="tab-navigation" role="navigation" aria-label="Story map navigation">
+            <div class="nav-header">
+                <h1>Rusty Crayfish Story Map 🦞</h1>
+                <div class="progress-indicator" role="progressbar" aria-valuenow="8" aria-valuemin="0" aria-valuemax="100" aria-label="Story progress">
+                    <div class="progress-bar"></div>
+                </div>
+            </div>
+            <div class="tab-buttons" role="tablist" aria-label="Story panels">
+                <button class="tab-btn active" data-tab="cover" role="tab" aria-selected="true" aria-controls="cover" id="tab-cover">Cover</button>
+                <button class="tab-btn" data-tab="species" role="tab" aria-selected="false" aria-controls="species" id="tab-species">Species</button>
+                <button class="tab-btn" data-tab="arrival" role="tab" aria-selected="false" aria-controls="arrival" id="tab-arrival">First Detection</button>
+                <button class="tab-btn" data-tab="expansion" role="tab" aria-selected="false" aria-controls="expansion" id="tab-expansion">Expansion</button>
+                <button class="tab-btn" data-tab="current" role="tab" aria-selected="false" aria-controls="current" id="tab-current">Current Status</button>
+                <button class="tab-btn" data-tab="skokie" role="tab" aria-selected="false" aria-controls="skokie" id="tab-skokie">Skokie Lagoons</button>
+                <button class="tab-btn" data-tab="montrose" role="tab" aria-selected="false" aria-controls="montrose" id="tab-montrose">Montrose Harbor</button>
+                <button class="tab-btn" data-tab="impact" role="tab" aria-selected="false" aria-controls="impact" id="tab-impact">Ecological Impact</button>
+                <button class="tab-btn" data-tab="management" role="tab" aria-selected="false" aria-controls="management" id="tab-management">Management</button>
+                <button class="tab-btn" data-tab="compensatory" role="tab" aria-selected="false" aria-controls="compensatory" id="tab-compensatory">Compensatory Response</button>
+                <button class="tab-btn" data-tab="future" role="tab" aria-selected="false" aria-controls="future" id="tab-future">Climate Projections</button>
+                <button class="tab-btn" data-tab="action" role="tab" aria-selected="false" aria-controls="action" id="tab-action">Take Action</button>
+                <button class="tab-btn" data-tab="citations" role="tab" aria-selected="false" aria-controls="citations" id="tab-citations">Works Cited</button>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="content-area" id="main-content">
+            <!-- Cover Panel -->
+            <section class="panel active" id="cover" role="tabpanel" aria-labelledby="tab-cover">
+                <div class="hero-content">
+                    <h2>Rusty Crayfish in Chicago Waterways</h2>
+                    <h3>Tracking 50 Years of Aquatic Invasion</h3>
+                    <p class="subtitle">An Interactive Story Map</p>
+                    <div class="course-info">
+                        <strong>GEO 211 | Spring 2025</strong>
+                    </div>
+                    <div class="crayfish-hero" aria-hidden="true">🦞</div>
+                    <button class="btn btn--primary btn--lg" id="begin-journey" aria-describedby="journey-description">Begin Journey</button>
+                    <p id="journey-description" class="sr-only">Start the interactive story about rusty crayfish invasion in Chicago waterways</p>
+                </div>
+            </section>
+
+            <!-- Species Profile -->
+            <section class="panel" id="species" role="tabpanel" aria-labelledby="tab-species">
+                <h2>Species Comparison: Invasive vs Native</h2>
+                <div class="species-comparison">
+                    <div class="invasive-species card">
+                        <div class="card__header">
+                            <h3>🦞 Rusty Crayfish (Invasive)</h3>
+                        </div>
+                        <div class="card__body">
+                            <img src="https://pplx-res.cloudinary.com/image/upload/v1748931303/pplx_project_search_images/d5cf6477b7991cf0b2e927e2fb4f810c2959a2bc.jpg" alt="Close-up of a rusty crayfish showing distinctive claw spots and rusty coloration" class="species-image" loading="lazy">
+                            <p><strong>Scientific Name:</strong> Faxonius rusticus</p>
+                            <p><strong>Size:</strong> 10-12 cm</p>
+                            <p><strong>Key Features:</strong></p>
+                            <ul>
+                                <li>Rust-colored spots on carapace</li>
+                                <li>Black bands on claws with orange spots<sup><a href="#cite-8" aria-label="Citation 8">8</a></sup></li>
+                                <li>Aggressive behavior</li>
+                                <li>High reproductive rate</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="native-species">
+                        <h3>Native Species Status</h3>
+                        <div class="native-table" role="table" aria-label="Native crayfish species comparison">
+                            <div class="table-header" role="row">
+                                <div role="columnheader">Species</div>
+                                <div role="columnheader">Scientific Name</div>
+                                <div role="columnheader">Size</div>
+                                <div role="columnheader">Habitat</div>
+                                <div role="columnheader">Status</div>
+                            </div>
+                            <div id="native-species-table">
+                                <!-- Native species data will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- First Detection -->
+            <section class="panel" id="arrival" role="tabpanel" aria-labelledby="tab-arrival">
+                <h2>First Detection (1973)</h2>
+                <div class="arrival-content">
+                    <div class="arrival-info">
+                        <h3>Peoria Lake Detection<sup><a href="#cite-8" aria-label="Citation 8">8</a></sup></h3>
+                        <p>The first rusty crayfish were detected in Illinois waters in 1973 in <strong>Peoria Lake, Illinois River</strong><sup><a href="#cite-8" aria-label="Citation 8">8</a></sup>. This introduction was likely through:</p>
+                        <ul>
+                            <li><strong>Bait bucket transfers</strong> - Anglers unknowingly transporting</li>
+                            <li><strong>Aquarium releases</strong> - Pet trade connections</li>
+                            <li><strong>Natural dispersal</strong> - From Wisconsin populations</li>
+                        </ul>
+                        <div class="timeline-marker">
+                            <strong>1973:</strong> Patient zero detected - the beginning of a 50-year invasion<sup><a href="#cite-8" aria-label="Citation 8">8</a></sup>
+                        </div>
+                    </div>
+                    <div class="map-container">
+                        <div id="arrival-map" class="interactive-map" role="img" aria-label="Map showing first detection site in Peoria Lake, Illinois"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Expansion Era -->
+            <section class="panel" id="expansion" role="tabpanel" aria-labelledby="tab-expansion">
+                <h2>Expansion Timeline (1973-2024)</h2>
+                <div class="expansion-content">
+                    <div class="chart-container">
+                        <canvas id="expansion-chart" role="img" aria-label="Chart showing cumulative county invasion from 1973 to 2024"></canvas>
+                        <p class="chart-description">County invasion increased from 1 in 1973 to 42 by 2024, with data from Taylor & Redmer 1996<sup><a href="#cite-10" aria-label="Citation 10">10</a></sup></p>
+                    </div>
+                    <div class="expansion-timeline">
+                        <h3>Key Events Timeline</h3>
+                        <div class="timeline-events" id="timeline-events" role="list" aria-label="Timeline of rusty crayfish expansion events">
+                            <!-- Timeline events will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Current Status -->
+            <section class="panel" id="current" role="tabpanel" aria-labelledby="tab-current">
+                <h2>Current Status (2024-2025)</h2>
+                <div class="current-content">
+                    <div class="stats-grid" role="region" aria-label="Current statistics">
+                        <div class="stat-card">
+                            <div class="stat-number" id="inat-observations">89</div>
+                            <div class="stat-label">iNaturalist Observations</div>
+                            <div class="stat-change" id="observation-change">+23% this year</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="confirmed-sites">47</div>
+                            <div class="stat-label">Confirmed Sites</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="citizen-scientists">156</div>
+                            <div class="stat-label">Citizen Scientists</div>
+                        </div>
+                    </div>
+                    <div class="current-map-container">
+                        <h3>Chicago Area Research Sites</h3>
+                        <div id="current-map" class="interactive-map" role="img" aria-label="Map showing current rusty crayfish research sites in Chicago area"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Skokie Lagoons -->
+            <section class="panel" id="skokie" role="tabpanel" aria-labelledby="tab-skokie">
+                <h2>Field Site: Skokie Lagoons</h2>
+                <div class="field-site-content">
+                    <div class="site-info card">
+                        <div class="card__header">
+                            <h3>Site Characteristics</h3>
+                        </div>
+                        <div class="card__body" id="skokie-details">
+                            <!-- Site details will be populated by JavaScript -->
+                        </div>
+                    </div>
+                    <div class="field-notes">
+                        <h3>Field Notes</h3>
+                        <div class="notes-content">
+                            <p>Dense population observed along rocky shoreline. High activity during daylight hours, unusual for typical crayfish behavior. Evidence of significant substrate disturbance in <strong>Cook County Forest Preserve</strong> system.</p>
+                            <h4>Co-occurring Species:</h4>
+                            <ul>
+                                <li>Smallmouth bass (predator)</li>
+                                <li>Bluegill (competitor)</li>
+                                <li>Various aquatic invertebrates (prey)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="site-map">
+                    <div id="skokie-map" class="interactive-map" role="img" aria-label="Detailed map of Skokie Lagoons field site showing research location"></div>
+                </div>
+            </section>
+
+            <!-- Montrose Harbor -->
+            <section class="panel" id="montrose" role="tabpanel" aria-labelledby="tab-montrose">
+                <h2>Field Site: Montrose Harbor</h2>
+                <div class="field-site-content">
+                    <div class="site-info card">
+                        <div class="card__header">
+                            <h3>Site Characteristics</h3>
+                        </div>
+                        <div class="card__body" id="montrose-details">
+                            <!-- Site details will be populated by JavaScript -->
+                        </div>
+                    </div>
+                    <div class="field-notes">
+                        <h3>Field Notes</h3>
+                        <div class="notes-content">
+                            <p><strong>Urban harbor</strong> environment with modified substrate. Population density lower than natural sites but still significant. Adjacent to Montrose Point Bird Sanctuary creates interesting ecological dynamics.</p>
+                            <h4>Urban Impacts:</h4>
+                            <ul>
+                                <li>Boat traffic disturbance</li>
+                                <li>Modified shoreline habitat</li>
+                                <li>Connection to <strong>Lake Michigan</strong> system</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="site-map">
+                    <div id="montrose-map" class="interactive-map" role="img" aria-label="Detailed map of Montrose Harbor field site showing urban research location"></div>
+                </div>
+            </section>
+
+            <!-- Ecological Impact -->
+            <section class="panel" id="impact" role="tabpanel" aria-labelledby="tab-impact">
+                <h2>Ecological Impact</h2>
+                <div class="impact-content">
+                    <div class="impact-chart-container">
+                        <h3>Ecosystem Component Changes</h3>
+                        <canvas id="impact-chart" role="img" aria-label="Bar chart showing before and after ecosystem impacts of rusty crayfish invasion"></canvas>
+                        <p class="chart-description">Data from Lodge et al. 1994, Taylor & Redmer 1996, and other peer-reviewed sources<sup><a href="#cite-5" aria-label="Citation 5">5</a></sup><sup><a href="#cite-10" aria-label="Citation 10">10</a></sup></p>
+                    </div>
+                    <div class="impact-details" id="impact-details">
+                        <!-- Impact details will be populated by JavaScript -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Management -->
+            <section class="panel" id="management" role="tabpanel" aria-labelledby="tab-management">
+                <h2>Management Timeline</h2>
+                <div class="management-content">
+                    <div class="management-timeline">
+                        <h3>Regulatory & Control History</h3>
+                        <div class="timeline" id="management-timeline" role="list" aria-label="Timeline of management actions">
+                            <!-- Timeline will be populated by JavaScript -->
+                        </div>
+                    </div>
+                    <div class="economic-impact">
+                        <h3>Economic Impact</h3>
+                        <div class="economic-stats">
+                            <div class="stat-card">
+                                <div class="stat-number">$450,000</div>
+                                <div class="stat-label">Annual Control Costs</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">$2,500</div>
+                                <div class="stat-label">Illinois Fine Amount<sup><a href="#cite-2" aria-label="Citation 2">2</a></sup></div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">28,664</div>
+                                <div class="stat-label">Crayfish Corps Removed (2008-2022)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Compensatory Response -->
+            <section class="panel" id="compensatory" role="tabpanel" aria-labelledby="tab-compensatory">
+                <h2>Compensatory Response</h2>
+                <div class="compensatory-content">
+                    <div class="paradox-explanation">
+                        <h3>The Removal Paradox<sup><a href="#cite-9" aria-label="Citation 9">9</a></sup></h3>
+                        <p>Recent research by Peters et al. (2023) has revealed a concerning phenomenon: removing adult rusty crayfish can actually increase population growth through <strong>compensatory response</strong>.</p>
+                        <div class="paradox-chart">
+                            <canvas id="removal-chart" role="img" aria-label="Chart showing compensatory response - increased juvenile survival after adult removal"></canvas>
+                        </div>
+                        <p>When adults are removed, juvenile survival rates increase dramatically due to reduced competition and predation, often resulting in net population increases.</p>
+                    </div>
+                    <div class="research-implications">
+                        <h3>Management Implications</h3>
+                        <ul>
+                            <li>Traditional removal strategies may be counterproductive</li>
+                            <li>Ecosystem-level management approaches needed</li>
+                            <li>Focus on prevention rather than control</li>
+                            <li>Need for integrated pest management strategies</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Climate Projections -->
+            <section class="panel" id="future" role="tabpanel" aria-labelledby="tab-future">
+                <h2>Climate Projections (2025-2050)</h2>
+                <div class="future-content">
+                    <div class="climate-projections">
+                        <h3>Temperature Scenarios<sup><a href="#cite-2" aria-label="IPCC AR6 2023">IPCC AR6 2023</a></sup></h3>
+                        <canvas id="climate-chart" role="img" aria-label="Line chart showing different climate scenarios and projected temperature increases through 2050"></canvas>
+                    </div>
+                    <div class="scenario-explanations">
+                        <div class="scenario">
+                            <h4>RCP 2.6 (Best Case)</h4>
+                            <p>+1.5°C by 2050. Limited temperature increase may slow expansion but won't reverse current range.</p>
+                        </div>
+                        <div class="scenario">
+                            <h4>RCP 4.5 (Moderate)</h4>
+                            <p>+3°C by 2050. Moderate warming could expand suitable habitat northward by 50-100km.</p>
+                        </div>
+                        <div class="scenario">
+                            <h4>RCP 8.5 (Worst Case)</h4>
+                            <p>+4°C by 2050. Significant warming may enable year-round activity and expanded reproduction.</p>
+                        </div>
+                    </div>
+                    <div class="connectivity-impacts">
+                        <h3>Urban Connectivity Impacts</h3>
+                        <p>Chicago's extensive waterway network creates ideal conditions for continued spread through connected river systems, harbors, and constructed channels.</p>
+                        <img src="https://i0.wp.com/americancanalsociety.org/wp-content/uploads/2023/04/illinois-map.jpg?fit=2327%2C2436&ssl=1" alt="Map of Illinois waterways showing extensive canal and river connections" class="waterway-map" loading="lazy">
+                    </div>
+                </div>
+            </section>
+
+            <!-- Take Action -->
+            <section class="panel" id="action" role="tabpanel" aria-labelledby="tab-action">
+                <h2>Take Action</h2>
+                <div class="action-content">
+                    <div class="action-cards">
+                        <div class="action-card card">
+                            <div class="card__header">
+                                <h3>📱 Report Sightings</h3>
+                            </div>
+                            <div class="card__body">
+                                <p>Help scientists track rusty crayfish populations by reporting observations on iNaturalist.</p>
+                                <p><strong>Current observations:</strong> <span id="current-inat-count">89</span> reported</p>
+                                <button class="btn btn--primary" onclick="window.open('https://www.inaturalist.org/projects/rusty-crayfish-tracking', '_blank')" aria-describedby="inat-description">Submit Observation</button>
+                                <p id="inat-description" class="sr-only">Opens iNaturalist website in new tab to submit rusty crayfish observations</p>
+                            </div>
+                        </div>
+                        <div class="action-card card">
+                            <div class="card__header">
+                                <h3>🧽 Prevent Spread</h3>
+                            </div>
+                            <div class="card__body">
+                                <p>Follow Clean-Drain-Dry protocols when moving between waterways.</p>
+                                <ul>
+                                    <li>Clean boats and gear</li>
+                                    <li>Drain all water</li>
+                                    <li>Dry for 5+ days</li>
+                                </ul>
+                                <button class="btn btn--primary" onclick="window.open('https://www.100thmeridian.org/empower.asp', '_blank')" aria-describedby="prevent-description">Learn More</button>
+                                <p id="prevent-description" class="sr-only">Opens prevention protocols website in new tab</p>
+                            </div>
+                        </div>
+                        <div class="action-card card">
+                            <div class="card__header">
+                                <h3>🔬 Citizen Science</h3>
+                            </div>
+                            <div class="card__body">
+                                <p>Participate in eDNA monitoring and population surveys.</p>
+                                <div class="next-event">
+                                    <strong>eDNA Pilot Program 2024:</strong><br>
+                                    Early detection capability<br>
+                                    Contact IDNR for participation
+                                </div>
+                                <button class="btn btn--primary" onclick="window.open('https://dnr.illinois.gov/education/wildaboutcrayfish', '_blank')" aria-describedby="citizen-description">Get Involved</button>
+                                <p id="citizen-description" class="sr-only">Opens Illinois DNR citizen science information in new tab</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Works Cited -->
+            <section class="panel" id="citations" role="tabpanel" aria-labelledby="tab-citations">
+                <h2>Works Cited</h2>
+                <div class="citations-content" id="citations-list">
+                    <!-- Citations will be populated by JavaScript -->
+                </div>
+            </section>
+        </main>
+
+        <!-- Navigation Controls -->
+        <div class="nav-controls">
+            <button class="btn btn--secondary" id="prev-btn" aria-describedby="prev-description">← Previous</button>
+            <span class="page-indicator" id="page-indicator" aria-live="polite">1 of 13</span>
+            <button class="btn btn--secondary" id="next-btn" aria-describedby="next-description">Next →</button>
+            <p id="prev-description" class="sr-only">Go to previous panel</p>
+            <p id="next-description" class="sr-only">Go to next panel</p>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
