@@ -1239,11 +1239,16 @@ select.form-control {
 /* Panel Styles */
 .panel {
   display: none;
-  animation: fadeIn var(--duration-normal) var(--ease-standard);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity var(--duration-normal) var(--ease-standard),
+              transform var(--duration-normal) var(--ease-standard);
 }
 
 .panel.active {
   display: block;
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .panel h2 {
