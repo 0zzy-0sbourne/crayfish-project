@@ -205,6 +205,19 @@ const panels = [
 // Chart colors
 const chartColors = ['#1FB8CD', '#FFC185', '#B4413C', '#ECEBD5', '#5D878F', '#DB4545', '#D2BA4C', '#964325', '#944454', '#13343B'];
 
+function applyChartTheme() {
+  const styles = getComputedStyle(document.documentElement);
+  const textColor = styles.getPropertyValue('--color-text').trim() || '#333';
+  const borderColor = styles.getPropertyValue('--color-border').trim() || '#ccc';
+  const fontFamily = styles.getPropertyValue('--font-family-base');
+  Chart.defaults.color = textColor;
+  Chart.defaults.borderColor = borderColor;
+  Chart.defaults.font.family = fontFamily;
+  if (Chart.defaults.plugins && Chart.defaults.plugins.legend) {
+    Chart.defaults.plugins.legend.labels.color = textColor;
+  }
+}
+
 // Initialize application when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
   try {
@@ -218,6 +231,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // Application initialization
 function initializeApplication() {
   try {
+    applyChartTheme();
     // Immediately populate data first
     populateDataContent();
     
